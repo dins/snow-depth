@@ -30,9 +30,16 @@ print(p2)
 counts <- xmas %>% group_by(snow) %>% summarise(n=n())
 print(counts)
 
-posterior_samples <- data.frame(p=rbeta(10000, 42, 20))
+num_snow = counts$n[counts$snow == TRUE]
+num_no_snow = counts$n[counts$snow == FALSE]
+prior_snow = 1
+prior_no_snow = 1
+shape_snow = num_snow + prior_snow
+shape_no_snow = num_no_snow + prior_no_snow
+
+posterior_samples <- data.frame(p=rbeta(10000, shape_snow, shape_no_snow))
 p3 <- ggplot(posterior_samples, aes(x=p)) + 
-  stat_function(fun = dbeta, args = list(shape1 = 42, shape2 = 20)) +
-  geom_vline(aes(xintercept=qbeta(0.5, 42, 20)), linetype="dashed") +
+  stat_function(fun = dbeta, args = list(shape1 = shape_snow, shape2 = shape_no_snow)) +
+  geom_vline(aes(xintercept=qbeta(0.5, shape_snow, shape_no_snow)), linetype="dashed") +
   labs(title = "Propability (p) of snow on 24.12.")
 print(p3)
